@@ -1,33 +1,26 @@
-   jobs:
-     post-feedback:
-       runs-on: ubuntu-latest
-       steps:
-+      - name: Build fixed-in table
-+        id: table
-+        run: |
-+          MR=$(echo "${{ github.event.issue.body }}" \
-+               | grep -oE 'MR IID: *[0-9]+' \
-+               | grep -oE '[0-9]+')
-+          MD=$(node tools/get_fix_info_cli.js --mr "$MR" --format markdown)
-+          echo "md=$MD" >> $GITHUB_OUTPUT
-+
-       - name: Post satisfaction comment only
-         uses: actions/github-script@v6
-         with:
-           github-token: ${{ secrets.GITHUB_TOKEN }}
-           script: |
--            const prompt = `
-+            const table = `\n${{ steps.table.outputs.md }}`;
-+            const prompt = `
-             Was this issue resolved to your satisfaction?
-             👍 **Yes – my issue was resolved**
-             👎 **No – my issue was not resolved**
-             `;
--            await github.rest.issues.createComment({
-+            await github.rest.issues.createComment({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               issue_number: context.payload.issue.number,
--              body: prompt
-+              body: table + prompt
-             });
+      - name: Build fixed-in table
+        id: table
+        run: |
+          MR=$(echo "${{ github.event.issue.body }}" \
+               | grep -oE 'MR IID: *[0-9]+' \
+               | grep -oE '[0-9]+')
+          MD=$(node tools/get_fix_info_cli.js --mr "$MR" --format markdown)
+          echo "md=$MD" >> $GITHUB_OUTPUT
+
+      - name: Post satisfaction comment only
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const table = `\n${{ steps.table.outputs.md }}`;
+            const prompt = `
+Was this issue resolved to your satisfaction?
+👍 **Yes – my issue was resolved**
+👎 **No – my issue was not resolved**
+`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: table + prompt
+            });
