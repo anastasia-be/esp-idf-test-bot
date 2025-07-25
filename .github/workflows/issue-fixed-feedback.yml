@@ -31,7 +31,7 @@ jobs:
           MD=$(node tools/get_fix_info_cli.js --mr $MR --format markdown)
           # 3. Expose that Markdown to the next step
           echo "::set-output name=md::$MD"
-
+ # TODO: indentation checked
       - name: Post fixed-in comment
         uses: actions/github-script@v6
         with:
