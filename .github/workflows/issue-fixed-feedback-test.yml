@@ -15,10 +15,10 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const prompt = `
-Was this issue resolved to your satisfaction?
-👍 **Yes – my issue was resolved**  
-👎 **No – my issue was not resolved**
-`;
+            Was this issue resolved to your satisfaction?
+            👍 **Yes – my issue was resolved**
+            👎 **No – my issue was not resolved**
+            `;
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
