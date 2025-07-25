@@ -1,4 +1,4 @@
-name: Test Issue Fixed-In & Feedback Comment
+name: Issue Satisfaction Feedback Only
 
 on:
   issues:
@@ -6,24 +6,22 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-fixed-in:
+  post-feedback:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Build fake table (test)
-        id: table
-        run: echo "::set-output name=md::**TEST TABLE**"
-
-      - name: Post test comment
+      - name: Post satisfaction comment only
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const prompt = `
+Was this issue resolved to your satisfaction?
+👍 **Yes – my issue was resolved**  
+👎 **No – my issue was not resolved**
+`;
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.issue.number,
-              body: `${{ steps.table.outputs.md }}\n\n*This is a test comment.*`
+              body: prompt
             });
