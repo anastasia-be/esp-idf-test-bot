@@ -1,23 +1,35 @@
-name: Test Issue Fixed-in Comment
+name: Issue Fixed-In & Feedback Comment
 
 on:
   issues:
     types: [closed]
+  workflow_dispatch:
 
 jobs:
   post-fixed-in:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Build fixed-in table
         id: table
         run: |
-          # 1. Extract the MR IID from the issue body
+          # 1. Extract the MR IID from the issue body (expects “MR IID: 12342”)
           MR=$(echo "${{ github.event.issue.body }}" \
                | grep -oE 'MR IID: *[0-9]+' \
                | grep -oE '[0-9]+')
-          # 2. Run the lookup script
+          # 2. Run the lookup script to emit Markdown
           MD=$(node tools/get_fix_info_cli.js --mr $MR --format markdown)
-          # 3. Expose it for the next step
+          # 3. Expose that Markdown to the next step
           echo "::set-output name=md::$MD"
 
       - name: Post fixed-in comment
@@ -30,7 +42,6 @@ jobs:
 Was this issue resolved to your satisfaction?
 👍 **Yes – my issue was resolved**
 👎 **No – my issue was not resolved**
-_(Other users — please do not vote here.)_
 `;
             await github.rest.issues.createComment({
               owner: context.repo.owner,
